@@ -33,7 +33,7 @@ fn rms(samples: List[Float]) -> Float = {
   if n == 0 then 0.0
   else {
     let sumsq = list.fold(samples, 0.0, (acc, x) => acc + x * x)
-    math.sqrt(sumsq / int.to_float(n))
+    math.sqrt(sumsq / float.from(n))
   }
 }
 

@@ -16,21 +16,21 @@ import self as ls
 import bytes
 
 // worklet が書き込む再利用バッファ (起動時 lipsync_init で確保)。
-var g_buf: Bytes = bytes.new(0)
+var g_buf: Bytes = bytes.zeros(0)
 var g_n: Int = 0
 
 // n サンプル分 (f32 = 4 byte) のバッファを確保し、書き込み先オフセットを返す。
 @export(wasm, "lipsync_init")
 fn lipsync_init(n: Int) -> RawPtr = {
   g_n = n
-  g_buf = bytes.new(n * 4)
+  g_buf = bytes.zeros(n * 4)
   bytes.as_mut_ptr(g_buf)
 }
 
 // バッファに書かれた g_n 個の f32 LE サンプルから口パクを 1 ステップ進める。
 @export(wasm, "lipsync_step")
 fn lipsync_step(prev: Float, attack: Float, release: Float, gain: Float, floor: Float) -> Float = {
-  let samples = bytes.read_f32_le_array(g_buf, 0, g_n)
+  let samples = bytes.get_f32_le_array(g_buf, 0, g_n) ?? []
   ls.step(samples, prev, attack, release, gain, floor)
 }
 
