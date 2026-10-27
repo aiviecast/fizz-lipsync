@@ -14,6 +14,7 @@
 
 import self as ls
 import bytes
+import ffi
 
 // worklet が書き込む再利用バッファ (起動時 lipsync_init で確保)。
 var g_buf: Bytes = bytes.zeros(0)
@@ -24,7 +25,7 @@ var g_n: Int = 0
 fn lipsync_init(n: Int) -> RawPtr = {
   g_n = n
   g_buf = bytes.zeros(n * 4)
-  bytes.as_mut_ptr(g_buf)
+  ffi.address(g_buf)
 }
 
 // バッファに書かれた g_n 個の f32 LE サンプルから口パクを 1 ステップ進める。
