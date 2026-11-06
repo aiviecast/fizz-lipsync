@@ -17,21 +17,21 @@ import bytes
 import ffi
 
 // worklet が書き込む再利用バッファ (起動時 lipsync_init で確保)。
-var g_buf: Bytes = bytes.zeros(0)
+var g_buf: Region = ffi.region(bytes.new())
 var g_n: Int = 0
 
 // n サンプル分 (f32 = 4 byte) のバッファを確保し、書き込み先オフセットを返す。
-@export(wasm, "lipsync_init")
-fn lipsync_init(n: Int) -> RawPtr = {
+@export(wasm, "lipsync_init", returns: address)
+effect fn lipsync_init(n: Int) -> Region = {
   g_n = n
-  g_buf = bytes.zeros(n * 4)
-  ffi.address(g_buf)
+  g_buf = ffi.alloc(n * 4)!
+  g_buf
 }
 
 // バッファに書かれた g_n 個の f32 LE サンプルから口パクを 1 ステップ進める。
 @export(wasm, "lipsync_step")
-fn lipsync_step(prev: Float, attack: Float, release: Float, gain: Float, floor: Float) -> Float = {
-  let samples = bytes.get_f32_le_array(g_buf, 0, g_n) ?? []
+effect fn lipsync_step(prev: Float, attack: Float, release: Float, gain: Float, floor: Float) -> Float = {
+  let samples = bytes.get_f32_le_array(ffi.to_bytes(g_buf)!, 0, g_n) ?? []
   ls.step(samples, prev, attack, release, gain, floor)
 }
 
@@ -42,7 +42,7 @@ fn lipsync_step(prev: Float, attack: Float, release: Float, gain: Float, floor: 
 //  _start でヒープ初期化のため一度走るが、init(1) は worklet の init(128) で上書き
 //  される無害な呼び出し)。
 effect fn main() -> Unit = {
-  let _p = lipsync_init(1)
-  let _m = lipsync_step(0.0, 0.6, 0.15, 4.0, 0.01)
+  let _p = lipsync_init(1)!
+  let _m = lipsync_step(0.0, 0.6, 0.15, 4.0, 0.01)!
   ()
 }
