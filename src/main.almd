@@ -18,7 +18,7 @@ import string
 import int
 
 effect fn run(path: String, block: Int) -> Result[Unit, String] = {
-  let raw = fs.read_bytes_raw(path)!
+  let raw = fs.read_bytes(path)!
   let total = bytes.len(raw) / 4   // f32 サンプル数
   let b = if block < 1 then 1 else block
   var prev = 0.0
@@ -26,7 +26,7 @@ effect fn run(path: String, block: Int) -> Result[Unit, String] = {
   var frame = 0
   while i < total {
     let n = if i + b <= total then b else total - i
-    let samples = bytes.read_f32_le_array(raw, i * 4, n)
+    let samples = bytes.get_f32_le_array(raw, i * 4, n) ?? []
     prev = ls.step_default(samples, prev)
     println(json.stringify(value.object([
       ("i", value.int(frame)), ("mouth", value.float(prev)),

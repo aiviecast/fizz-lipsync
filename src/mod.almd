@@ -16,7 +16,6 @@
 
 import list
 import math
-import int
 
 // 既定パラメータ。short-block (128 sample @ 48kHz ≈ 2.7ms) を想定。
 let DEFAULT_ATTACK = 0.6    // 開く速さ (0..1、大きいほど即応)
@@ -33,7 +32,7 @@ fn rms(samples: List[Float]) -> Float = {
   if n == 0 then 0.0
   else {
     let sumsq = list.fold(samples, 0.0, (acc, x) => acc + x * x)
-    math.sqrt(sumsq / int.to_float(n))
+    math.sqrt(sumsq / float.from(n))
   }
 }
 
