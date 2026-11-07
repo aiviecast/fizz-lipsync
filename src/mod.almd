@@ -16,7 +16,6 @@
 
 import list
 import math
-import int
 
 // 既定パラメータ。short-block (128 sample @ 48kHz ≈ 2.7ms) を想定。
 let DEFAULT_ATTACK = 0.6    // 開く速さ (0..1、大きいほど即応)
